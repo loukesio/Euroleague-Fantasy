@@ -16,6 +16,7 @@
 
 # Output files from R CMD check
 /*.Rcheck/
+**/.DS_Store
 
 # RStudio files
 .Rproj.user/
