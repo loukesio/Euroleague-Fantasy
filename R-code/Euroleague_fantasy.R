@@ -1,8 +1,19 @@
+################
+# library ltc
+################
 
 library(here)
 library(ltc)
 library(tidyverse)
 library(xlsx)
+library(ggsci) # it has nice palettes
+library(ltc)
+library(gtExtras)
+library(gt)
+
+#######################
+# read euroleague data
+########################
 
 setwd(here("data"))
 coach <- read.xlsx(file ="161021_stats.xlsx", sheetIndex = 1, header = TRUE)
@@ -14,16 +25,80 @@ players <- read.xlsx(file ="161021_stats.xlsx", sheetIndex = 2, header = TRUE)
 # since they do not have give in each row a unique ID
 players %>% group_by(Name, Surname) %>% filter(n() > 1)
 
-players %>%
+players <- players %>%
   select(-starts_with("NA")) %>%
   mutate(id = row_number()) %>%
   mutate_at(c("Total.score"), ~replace(.,.==0,000000.1)) %>%
   mutate(index=Total.score/Quotation) %>%
+  arrange(desc(index))
+  #filter_at(c("Surname"), ~grepl("LAZ",.))
+
+# to find the colors I have used the whatthelogo.com website
+metadata <- distinct(players,Team) %>%
+  mutate(colors=c("#213557","#FEBE10","#D71920","#8E224B","#FFED00","#D4192D","#E2231A",
+                  "#0076BC","#f7ca00","#40A8DE","#03ad4f","#ac1b32","#EE263C","#2B7743",
+                  "#00965D","#ED1C24","#CEA22D","#333333")) %>%
+  mutate(team_logo=c("https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Efes.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Real.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Cska.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Barcelona.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Fener.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Olympiakos.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Armani.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Macabi.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Alba.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Zenit.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Unics.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Baskonia.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Bayern.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Zalgiris.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Panathinaikos.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Crvena_zvezda.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Monaco.png",
+                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Asvel.png"
+                     ))
+
+#####
+# connect metadata and player
+all.data <- left_join(players,metadata,by=c("Team"))
+head(all.data)
+top5 <- all.data %>%
   arrange(desc(index)) %>%
-  filter_at(c("Surname"), ~grepl("LAZ",.))
+  select(Surname,Team,Total.score,Role,Quotation,index,colors,team_logo) %>%
+  group_by(Role) %>% slice_max(order_by = index, n = 5)
+
+library(magick)
+
+head(team_df)
+head(top5)
+top5 %>%
+  gt(groupname_col = "Role") %>%
+  gt_merge_stack(col1 = Surname, col2 = Team) %>%
+  gt_img_rows(team_logo)
+
+my_plot <-
+  ggplot(data    = iris,
+         mapping = aes(x    = Sepal.Length,
+                       fill = Species)) +
+  geom_density(alpha = 0.7) # +
+# theme_cowplot()
+
+# Example with PNG (for fun, the OP's avatar - I love the raccoon)
+ggdraw() +
+  draw_image("https://i.stack.imgur.com/WDOo4.jpg?s=328&g=1") +
+  draw_plot(my_plot)
+library(png)
+library(grid)
+library(cowplot)
+
+(team_df$team_wordmark)
+str(top5$team_logo)
 
 
-distinct(players,Team)
+
+
+
+
 anadolou=c("#213557") # https://whatthelogo.com/logo/anadolu-efes/232612
 real.madrid =c("#FEBE10") # gold https://whatthelogo.com/logo/real-madrid-club-crest-new/227629
 cska.moscow =c("#D71920") # red https://whatthelogo.com/logo/pbc-cska-moscow/237542
@@ -31,7 +106,7 @@ barcelona = c("#8E224B") #purple https://whatthelogo.com/logo/barcelona-futbol/6
 fener = c("#FFED00") #yellow https://whatthelogo.com/logo/fenerbahce-beko-basketbol/231475
 olympiakos = c("#D4192D") #cherry https://whatthelogo.com/logo/olympiacos-basketball/239918
 armani  =  c("#E2231A") #red https://whatthelogo.com/logo/olimpia-milano/237598
-macabi = c("0076BC") #blue https://whatthelogo.com/logo/maccabi-electra-tel-aviv/239699
+macabi = c("#0076BC") #blue https://whatthelogo.com/logo/maccabi-electra-tel-aviv/239699
 alba = c("#f7ca00") #yellow alba
 zenit=c("#40A8DE") #skyblue https://whatthelogo.com/logo/fc-zenit-saint-petersburg/228568
 unix=c("#03ad4f") #green
@@ -41,21 +116,75 @@ zalgiris = c("#2B7743") # dark green
 pao = c("#00965D") # panathinaikos
 red.star =c("#ED1C24") # cherry red
 monaco = c("#CEA22D") # dull orange
+asvel =c("#333333")
 
-install.packages("ggsci")
-# learn this and pass through in R https://themockup.blog/static/slides/nfl-tidymodels.html#92
+library(tidyverse)
+library(nflreadr)
+
+games_df <- nflreadr::load_schedules() %>%
+  filter(season == 2020, game_type == "REG") %>%
+  select(game_id, team_home = home_team, team_away = away_team, result, week) %>%
+  pivot_longer(contains('team'), names_to = 'home_away', values_to = 'team', names_prefix = 'team_') %>%
+  mutate(
+    result = ifelse(home_away == 'home', result, -result),
+    win = ifelse(result == 0 , 0.5, ifelse(result > 0, 1, 0))
+  ) %>%
+  select(week, team, win) %>%
+  mutate(
+    team = case_when(
+      team == 'STL' ~ 'LA',
+      team == 'OAK' ~ 'LV',
+      team == 'SD' ~ 'LAC',
+      T ~ team
+    )
+  ) %>%
+  View()
+
+team_df <- readRDS(url("https://github.com/nflverse/nflfastR-data/raw/master/teams_colors_logos.rds"))
+
+head(team_df)
+  team_df %>%
+  dplyr::select(team_nick, team_abbr, team_conf, team_division, team_wordmark) %>%
+  head(8) %>%
+  gt(groupname_col = "team_conf") %>%
+  gt_merge_stack(col1 = team_nick, col2 = team_division) %>%
+  gt_img_rows(team_wordmark)
+
+
+
+
+
+
+
+
+#####################
+# Machine Learning
+####################
+#https://themockup.blog/static/slides/nfl-tidymodels.html#92
+
+
+
+
+
+
+
+
+
+#_______________________________________________________________________________
+#                                           _           _    _
+#  __ _  ___  _ _  _ __   __ _  _ _    ___ | | ___  __ | |_ (_) ___  _ _   ___
+# / _` |/ -_)| '_|| '  \ / _` || ' \  / -_)| |/ -_)/ _||  _|| |/ _ \| ' \ (_-<
+# \__, |\___||_|  |_|_|_|\__,_||_||_| \___||_|\___|\__| \__||_|\___/|_||_|/__/
+# |___/
+#_______________________________________________________________________________
+
+
+
+
 
 # I think this is cool and is exactly what you need, focucs
 #https://nanx.me/ggsci/reference/pal_uchicago.html
-
-
-
-
-
-
-
 install.packages("systemfonts", repos="https://mac.R-project.org", type="binary")
-
 
 library(gt)
 library(gtExtras)
@@ -119,76 +248,4 @@ party_table
 # to save as an img
 gtExtras::gtsave_extra(combo_table, "combo-table.png", vwidth = 450, vheight = 430)
 
-
-p2data <- "https://raw.githubusercontent.com/datavizpyr/data/master/Emmy_awards_summary_tidytuesday.tsv"
-stream_data <- read_tsv(p2data)
-stream_data %>%
-  gt() %>%
-  gt_plt_bullet(column = Nominee, target = Winner) %>%
-  gt_fa_column(column = type)
-
-
-team_df <- readRDS(url("https://github.com/nflverse/nflfastR-data/raw/master/teams_colors_logos.rds"))
-
-team_df %>%
-  dplyr::select(team_nick, team_abbr, team_conf, team_division, team_wordmark) %>%
-  head(8)
-
-players %>%
-  select(-starts_with("NA")) %>%
-  mutate(id = row_number()) %>%
-  mutate_at(c("Total.score"), ~replace(.,.==0,000000.1)) %>%
-  mutate(index=Total.score/Quotation) %>%
-  arrange(desc(index)) %>%
-  View()
-
-set.seed(123)
-players <- paste("player",rep(1:20))
-score <- runif(20, min=4, max=16.7)
-index <- runif(20, min=-1, max=9)
-role <- rep(c("C","F","F","G","G"),4)
-
-tfd <- as.data.frame(t(df))
-combn(tfd, 10, simplify=FALSE)
-
-
-df
-df %>%
-  complete(score, fill = list(weights=0))
-
-combn(X.df, 2, simplify=FALSE)
-
-library("RcppRoll")
-
-# check the rolling sum
-df %>%
-  mutate(roll_sum = roll_sum(score, 10, align = "right", fill = NA))
-
-
-df1 <- df[!apply(df, 1, function(x) any(duplicated(x))), ]
-
-lapply(as.data.frame(combn(ncol(df) - 1, 3)), function(idx)
-  df[, c(1, idx + 1)])
-
-
-
-i<- combn(df$score, 10, sum) <= 100
-head(combn(df$score, 10)[,i])
-
-
-n <- 14
-l <- rep(list(0:1), n)
-expand.grid(l)
-crossing(df)
-expand(df)
-
-df1 <- dplyr::tibble(
-  group = c(1:2, 1),
-  item_id = c(1:2, 2),
-  item_name = c("a", "b", "b"),
-  value1 = 1:3,
-  value2 = 4:6
-)
-df1
-df1 %>% complete(group, nesting(item_id, item_name))
 
