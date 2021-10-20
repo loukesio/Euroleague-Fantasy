@@ -25,6 +25,7 @@ players <- read.xlsx(file ="161021_stats.xlsx", sheetIndex = 2, header = TRUE)
 # since they do not have give in each row a unique ID
 players %>% group_by(Name, Surname) %>% filter(n() > 1)
 
+# here is the list of all the players
 players <- players %>%
   select(-starts_with("NA")) %>%
   mutate(id = row_number()) %>%
@@ -33,153 +34,72 @@ players <- players %>%
   arrange(desc(index))
   #filter_at(c("Surname"), ~grepl("LAZ",.))
 
+### isolate each team
+euro.teams <- distinct(players,Team) %>%
+  arrange(Team)
+
+# add the metadata to your data
 # to find the colors I have used the whatthelogo.com website
-metadata <- distinct(players,Team) %>%
+metadata <- euro.teams %>%
   mutate(colors=c("#213557","#FEBE10","#D71920","#8E224B","#FFED00","#D4192D","#E2231A",
                   "#0076BC","#f7ca00","#40A8DE","#03ad4f","#ac1b32","#EE263C","#2B7743",
                   "#00965D","#ED1C24","#CEA22D","#333333")) %>%
-  mutate(team_logo=c("https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Efes.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Real.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Cska.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Barcelona.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Fener.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Olympiakos.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Armani.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Macabi.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Alba.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Zenit.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Unics.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Baskonia.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Bayern.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Zalgiris.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Panathinaikos.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Crvena_zvezda.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Monaco.png",
-                     "https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Asvel.png"
-                     ))
+  mutate(team_logo=c("https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Alba.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Efes.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Monaco.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Armani.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Baskonia.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Crvena_zvezda.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Cska.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Barcelona.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Bayern.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Fener.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Asvel.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Macabi.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Olympiakos.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Panathinaikos.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Real.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Unics.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Zalgiris.png",
+                     "https://raw.githubusercontent.com/loukesio/Euroleague-Fantasy/main/data/logos/Zenit.png" ))
 
-#####
+###############################
 # connect metadata and player
+###############################
 all.data <- left_join(players,metadata,by=c("Team"))
-head(all.data)
+metadata
+
 top5 <- all.data %>%
   arrange(desc(index)) %>%
-  select(Surname,Team,Total.score,Role,Quotation,index,colors,team_logo) %>%
+  rename(`Total score`=Total.score, Teams=team_logo) %>%
+  select(Surname,Team,`Total score`,Role,Quotation,index,Teams) %>%
   group_by(Role) %>% slice_max(order_by = index, n = 5)
 
-library(magick)
-library(cowplot)
 
-head(team_df)
-head(top5)
 top5 %>%
   gt(groupname_col = "Role") %>%
   gt_merge_stack(col1 = Surname, col2 = Team) %>%
-  gt_img_rows(team_logo)
-
-my_plot <-
-  ggplot(data    = iris,
-         mapping = aes(x    = Sepal.Length,
-                       fill = Species)) +
-  geom_density(alpha = 0.7) # +
-# theme_cowplot()
-
-# Example with PNG (for fun, the OP's avatar - I love the raccoon)
-ggdraw() +
-  draw_image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chicago_Bears_logo.svg/100px-Chicago_Bears_logo.svg.png") +
-  draw_plot(my_plot)
-library(png)
-library(grid)
-library(cowplot)
-
-frink <- image_read("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chicago_Bears_logo.svg/100px-Chicago_Bears_logo.svg.png")
-print(frink)
-
-efes <- image_read("https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Zalgiris.png")
-file.show(efes)
-
-(team_df$team_wordmark)
-str(top5$team_logo)
-
-library("rsvg")
-library(magick)
-tiger <- image_read_svg('http://jeroen.github.io/images/tiger.svg', width = 350)
-print(tiger)
+  gt_img_rows(Teams)
 
 
-
-
-
-anadolou=c("#213557") # https://whatthelogo.com/logo/anadolu-efes/232612
-real.madrid =c("#FEBE10") # gold https://whatthelogo.com/logo/real-madrid-club-crest-new/227629
-cska.moscow =c("#D71920") # red https://whatthelogo.com/logo/pbc-cska-moscow/237542
-barcelona = c("#8E224B") #purple https://whatthelogo.com/logo/barcelona-futbol/647
-fener = c("#FFED00") #yellow https://whatthelogo.com/logo/fenerbahce-beko-basketbol/231475
-olympiakos = c("#D4192D") #cherry https://whatthelogo.com/logo/olympiacos-basketball/239918
-armani  =  c("#E2231A") #red https://whatthelogo.com/logo/olimpia-milano/237598
-macabi = c("#0076BC") #blue https://whatthelogo.com/logo/maccabi-electra-tel-aviv/239699
-alba = c("#f7ca00") #yellow alba
-zenit=c("#40A8DE") #skyblue https://whatthelogo.com/logo/fc-zenit-saint-petersburg/228568
-unix=c("#03ad4f") #green
-baskonia=c("#ac1b32") # deep red
-bayern=c("#EE263C") #strawberry red
-zalgiris = c("#2B7743") # dark green
-pao = c("#00965D") # panathinaikos
-red.star =c("#ED1C24") # cherry red
-monaco = c("#CEA22D") # dull orange
-asvel =c("#333333")
-
-library(tidyverse)
-library(nflreadr)
-
-games_df <- nflreadr::load_schedules() %>%
-  filter(season == 2020, game_type == "REG") %>%
-  select(game_id, team_home = home_team, team_away = away_team, result, week) %>%
-  pivot_longer(contains('team'), names_to = 'home_away', values_to = 'team', names_prefix = 'team_') %>%
-  mutate(
-    result = ifelse(home_away == 'home', result, -result),
-    win = ifelse(result == 0 , 0.5, ifelse(result > 0, 1, 0))
-  ) %>%
-  select(week, team, win) %>%
-  mutate(
-    team = case_when(
-      team == 'STL' ~ 'LA',
-      team == 'OAK' ~ 'LV',
-      team == 'SD' ~ 'LAC',
-      T ~ team
-    )
-  ) %>%
-  View()
-
-team_df <- readRDS(url("https://github.com/nflverse/nflfastR-data/raw/master/teams_colors_logos.rds"))
-
-head(team_df)
-  team_df %>%
-  dplyr::select(team_nick, team_abbr, team_conf, team_division, team_wordmark) %>%
-  head(8) %>%
-  gt(groupname_col = "team_conf") %>%
-  gt_merge_stack(col1 = team_nick, col2 = team_division) %>%
-  gt_img_rows(team_wordmark)
-
-
-
-
-
-
-
-
-#####################
-# Machine Learning
-####################
-#https://themockup.blog/static/slides/nfl-tidymodels.html#92
-
-
-
-
-
-
-
-
+# anadolou=c("#213557") # https://whatthelogo.com/logo/anadolu-efes/232612
+# real.madrid =c("#FEBE10") # gold https://whatthelogo.com/logo/real-madrid-club-crest-new/227629
+# cska.moscow =c("#D71920") # red https://whatthelogo.com/logo/pbc-cska-moscow/237542
+# barcelona = c("#8E224B") #purple https://whatthelogo.com/logo/barcelona-futbol/647
+# fener = c("#FFED00") #yellow https://whatthelogo.com/logo/fenerbahce-beko-basketbol/231475
+# olympiakos = c("#D4192D") #cherry https://whatthelogo.com/logo/olympiacos-basketball/239918
+# armani  =  c("#E2231A") #red https://whatthelogo.com/logo/olimpia-milano/237598
+# macabi = c("#0076BC") #blue https://whatthelogo.com/logo/maccabi-electra-tel-aviv/239699
+# alba = c("#f7ca00") #yellow alba
+# zenit=c("#40A8DE") #skyblue https://whatthelogo.com/logo/fc-zenit-saint-petersburg/228568
+# unix=c("#03ad4f") #green
+# baskonia=c("#ac1b32") # deep red
+# bayern=c("#EE263C") #strawberry red
+# zalgiris = c("#2B7743") # dark green
+# pao = c("#00965D") # panathinaikos
+# red.star =c("#ED1C24") # cherry red
+# monaco = c("#CEA22D") # dull orange
+# asvel =c("#333333")
 
 #_______________________________________________________________________________
 #                                           _           _    _
@@ -258,5 +178,4 @@ combo_table <- htmltools::div(
 party_table
 # to save as an img
 gtExtras::gtsave_extra(combo_table, "combo-table.png", vwidth = 450, vheight = 430)
-
 
