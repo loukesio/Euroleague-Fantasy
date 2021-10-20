@@ -68,6 +68,7 @@ top5 <- all.data %>%
   group_by(Role) %>% slice_max(order_by = index, n = 5)
 
 library(magick)
+library(cowplot)
 
 head(team_df)
 head(top5)
@@ -85,15 +86,25 @@ my_plot <-
 
 # Example with PNG (for fun, the OP's avatar - I love the raccoon)
 ggdraw() +
-  draw_image("https://i.stack.imgur.com/WDOo4.jpg?s=328&g=1") +
+  draw_image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chicago_Bears_logo.svg/100px-Chicago_Bears_logo.svg.png") +
   draw_plot(my_plot)
 library(png)
 library(grid)
 library(cowplot)
 
+frink <- image_read("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Chicago_Bears_logo.svg/100px-Chicago_Bears_logo.svg.png")
+print(frink)
+
+efes <- image_read("https://github.com/loukesio/Euroleague-Fantasy/blob/main/data/logos/Zalgiris.png")
+file.show(efes)
+
 (team_df$team_wordmark)
 str(top5$team_logo)
 
+library("rsvg")
+library(magick)
+tiger <- image_read_svg('http://jeroen.github.io/images/tiger.svg', width = 350)
+print(tiger)
 
 
 
