@@ -81,6 +81,46 @@ top5 %>%
   gt_merge_stack(col1 = Surname, col2 = Team) %>%
   gt_img_rows(Teams)
 
+###############################
+# best 10 players
+###############################
+best10 <-all.data %>%
+  select(Surname,Total.score,Quotation,Role)
+
+repeat {
+  idx <- unlist(
+    Map(
+      sample,
+      split(1:nrow(best10), best10$Role),
+      c(2, 4, 4)
+    )
+  )
+  s <- sum(best10$score[idx])
+  if (s >= 95.5 & s <= 100.4) break
+}
+
+head(best10)
+best10 %>% split(.$Role) -> best10_split
+C <- best10_split$Center$Surname
+F <- best10_split$Forward$Surname
+G <- best10_split$Guard$Surname
+
+best10$Role
+head(best10)
+
+C_comb <- combn(C, 2) %>% t %>% as_tibble()
+F_comb <- combn(F, 4) %>% t %>% as_tibble()
+G_comb <- combn(G, 4) %>% t %>% as_tibble()
+
+crossing(C_comb, F_comb, G_comb, .name_repair = "unique") %>%
+  mutate(sim_num = row_number()) %>%
+  pivot_longer(-sim_num) %>%
+  left_join(best10, by = c("value" = "Surname")) %>%
+  group_by(sim_num) %>%
+  mutate(Total.score = sum(score)) %>%
+  ungroup() %>%
+  filter(Total.score >= 95.5, score <= 100.4)
+
 
 # anadolou=c("#213557") # https://whatthelogo.com/logo/anadolu-efes/232612
 # real.madrid =c("#FEBE10") # gold https://whatthelogo.com/logo/real-madrid-club-crest-new/227629
