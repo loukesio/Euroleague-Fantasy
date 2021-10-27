@@ -29,3 +29,10 @@ Here I am taking into consideration the ratio of the "_Total score_" of each pla
 In simple words, I am investigating the value for money of each player. 
 
 <img src="data/Round5_Top5.png">
+
+## Top5 players in each position - Round6
+Based on this table, I am selecting the players of my team for the next round. Soon comes my MCMC algorithm in which you can put your top players and makes you the "best team".
+<br>
+
+<img src="data/Round7.png" width=500>
+
