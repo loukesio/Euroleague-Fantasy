@@ -77,9 +77,9 @@ top5 <- all.data %>%
 top5 %>%
   gt(groupname_col = "Role") %>%
   gt_merge_stack(col1 = Surname, col2 = Team) %>%
-  gt_img_rows(Teams)
+  gt_img_rows(Teams) %>%
   gtsave(
-    here("data","Round9.png"),
+    here("data","Round9.pdf"),
     vwidth = 815,
     vheight = 931
   )
