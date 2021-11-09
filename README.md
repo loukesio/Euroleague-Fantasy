@@ -34,7 +34,14 @@ In simple words, I am investigating the value for money of each player.
 Based on this table, I am selecting the players of my team for the next round. Soon comes my MCMC algorithm in which you can put your top players and makes you the "best team".
 <br>
 
-<img src="data/Round7.png" width=500>
+<img src="data/Round7.png" width=400>
+
+## Top5 players in each position - suggestions for Round8
+Based on this table, I am selecting the players of my team for the next round. Soon comes my MCMC algorithm in which you can put your top players and makes you the "best team".
+<br>
+
+<img src="data/Round8.png" width=400>
+
 
 # Have a look at the eurolig package data 
 https://solmos.netlify.app/post/2019-11-28-introduction-to-eurolig/introduction-to-eurolig/
