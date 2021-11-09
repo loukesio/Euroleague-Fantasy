@@ -7,7 +7,6 @@ library(ltc)
 library(tidyverse)
 library(xlsx)
 library(ggsci) # it has nice palettes
-library(ltc)
 library(gtExtras)
 library(gt)
 
@@ -15,11 +14,10 @@ library(gt)
 # read euroleague data
 ########################
 
-setwd(here("data"))
-coach <- read.xlsx(file ="28102021_stats.xlsx", sheetIndex = 1, header = TRUE)
+coach <- read.xlsx(here("data","071121_stats.xlsx"), sheetIndex = 1, header = TRUE)
 head(coach)
 
-players <- read.xlsx(file ="28102021_stats.xlsx", sheetIndex = 2, header = TRUE)
+players <- read.xlsx(here("data","071121_stats.xlsx"), sheetIndex = 2, header = TRUE)
 
 # check if there are players with the same and surname
 # since they do not have give in each row a unique ID
@@ -81,7 +79,9 @@ top5 %>%
   gt_merge_stack(col1 = Surname, col2 = Team) %>%
   gt_img_rows(Teams) %>%
   gtsave(
-    "Round7.png"
+    here("data","Round9.png"),
+    vwidth = 815,
+    vheight = 931
   )
 
 ###############################
