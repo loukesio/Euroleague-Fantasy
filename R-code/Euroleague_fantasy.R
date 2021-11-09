@@ -87,8 +87,9 @@ top5 %>%
 ###############################
 # best 10 players
 ###############################
-best10 <-all.data %>%
-  select(Surname,Total.score,Quotation,Role)
+
+best10 <-top5 %>%
+  select(Surname,`Total score`,Quotation,Role)
 
 repeat {
   idx <- unlist(
