@@ -14,10 +14,10 @@ library(gt)
 # read euroleague data
 ########################
 
-coach <- read.xlsx(here("data","28102021_stats.xlsx"), sheetIndex = 1, header = TRUE)
+coach <- read.xlsx(here("data","131121_stats.xlsx"), sheetIndex = 1, header = TRUE)
 head(coach)
 
-players <- read.xlsx(here("data","28102021_stats.xlsx"), sheetIndex = 2, header = TRUE)
+players <- read.xlsx(here("data","131121_stats.xlsx"), sheetIndex = 2, header = TRUE)
 
 # check if there are players with the same and surname
 # since they do not have give in each row a unique ID
@@ -79,7 +79,7 @@ top5 %>%
   gt_merge_stack(col1 = Surname, col2 = Team) %>%
   gt_img_rows(Teams) %>%
   gtsave(
-    here("data","Round8.pdf"),
+    here("data","Round10.pdf"),
     vwidth = 815,
     vheight = 931
   )
