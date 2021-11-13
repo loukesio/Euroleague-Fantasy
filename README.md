@@ -48,6 +48,9 @@ Based on this table, I am selecting the players of my team for the next round. S
 
 <img src="data/Round9.png">
 
+## Top5 players in each position - suggestions for Round10
+<img src="data/Round10.png">
+
 
 # Have a look at the eurolig package data 
 https://solmos.netlify.app/post/2019-11-28-introduction-to-eurolig/introduction-to-eurolig/
