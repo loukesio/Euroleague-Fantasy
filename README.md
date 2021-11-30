@@ -53,9 +53,6 @@ Based on this table, I am selecting the players of my team for the next round. S
 <img src="data/Round10.png" width=500>
 
 
-### Have a look at the eurolig package data 
-https://solmos.netlify.app/post/2019-11-28-introduction-to-eurolig/introduction-to-eurolig/
-
 ## MCMC algorithm to find the best team
 ```
 repeat {
@@ -71,3 +68,6 @@ repeat {
 }
 df[sort(idx), ]
 ```
+
+### Other packages to look at: 
+https://solmos.netlify.app/post/2019-11-28-introduction-to-eurolig/introduction-to-eurolig/
