@@ -16,10 +16,10 @@ library(gt)
 ########################
 
 setwd(here("data"))
-coach <- read.xlsx(file ="161021_stats.xlsx", sheetIndex = 1, header = TRUE)
+coach <- read.xlsx(file ="091221_stats.xlsx", sheetIndex = 1, header = TRUE)
 head(coach)
 
-players <- read.xlsx(file ="161021_stats.xlsx", sheetIndex = 2, header = TRUE)
+players <- read.xlsx(file ="091221_stats.xlsx", sheetIndex = 2, header = TRUE)
 
 # check if there are players with the same and surname
 # since they do not have give in each row a unique ID
