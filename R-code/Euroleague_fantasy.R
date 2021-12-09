@@ -7,7 +7,6 @@ library(ltc)
 library(tidyverse)
 library(xlsx)
 library(ggsci) # it has nice palettes
-library(ltc)
 library(gtExtras)
 library(gt)
 
@@ -15,11 +14,18 @@ library(gt)
 # read euroleague data
 ########################
 
+<<<<<<< HEAD
 setwd(here("data"))
 coach <- read.xlsx(file ="091221_stats.xlsx", sheetIndex = 1, header = TRUE)
 head(coach)
 
 players <- read.xlsx(file ="091221_stats.xlsx", sheetIndex = 2, header = TRUE)
+=======
+coach <- read.xlsx(here("data","041121_stats.xlsx"), sheetIndex = 1, header = TRUE)
+head(coach)
+
+players <- read.xlsx(here("data","041121_stats.xlsx"), sheetIndex = 2, header = TRUE)
+>>>>>>> 18b5b990f391220d0f4d004e6f222d611bdb5d6c
 
 # check if there are players with the same and surname
 # since they do not have give in each row a unique ID
@@ -79,13 +85,19 @@ top5 <- all.data %>%
 top5 %>%
   gt(groupname_col = "Role") %>%
   gt_merge_stack(col1 = Surname, col2 = Team) %>%
-  gt_img_rows(Teams)
+  gt_img_rows(Teams) %>%
+  gtsave(
+    here("data","Round5.png")
+  )
+
+
 
 ###############################
 # best 10 players
 ###############################
-best10 <-all.data %>%
-  select(Surname,Total.score,Quotation,Role)
+
+best10 <-top5 %>%
+  select(Surname,`Total score`,Quotation,Role)
 
 repeat {
   idx <- unlist(
@@ -140,82 +152,3 @@ crossing(C_comb, F_comb, G_comb, .name_repair = "unique") %>%
 # red.star =c("#ED1C24") # cherry red
 # monaco = c("#CEA22D") # dull orange
 # asvel =c("#333333")
-
-#_______________________________________________________________________________
-#                                           _           _    _
-#  __ _  ___  _ _  _ __   __ _  _ _    ___ | | ___  __ | |_ (_) ___  _ _   ___
-# / _` |/ -_)| '_|| '  \ / _` || ' \  / -_)| |/ -_)/ _||  _|| |/ _ \| ' \ (_-<
-# \__, |\___||_|  |_|_|_|\__,_||_||_| \___||_|\___|\__| \__||_|\___/|_||_|/__/
-# |___/
-#_______________________________________________________________________________
-
-
-
-
-
-# I think this is cool and is exactly what you need, focucs
-#https://nanx.me/ggsci/reference/pal_uchicago.html
-install.packages("systemfonts", repos="https://mac.R-project.org", type="binary")
-
-library(gt)
-library(gtExtras)
-library(dplyr)
-library(htmltools)
-
-# original source: https://www.bloomberg.com/graphics/2021-german-election-results/
-
-party_df <- tibble(
-  Party = c("SPD", "CDU/CSU", "Greens", "FDP", "AfD", "Left", "Other"),
-  Seats = c(206, 196, 118, 92, 83, 39, 1),
-  `% of 2nd Votes` = c(25.7, 24.1, 14.8, 11.5, 10.3, 4.9, 8.7)
-)
-
-minimal_table <- gt(party_df) %>%
-  gt_plt_dot(column = Seats, category_column = Party,  max_value = 379,
-             palette = c("#ec323f", "black", "#63d64a", "#fff24e", "#4fabf7", "#e956ad", "grey")) %>%
-  gtExtras::gt_theme_nytimes() %>%
-  tab_header(title = "Results by Party in the Bundestag Election",
-             subtitle = "Seats and votes are based on provisional official results.") %>%
-  cols_width(Party ~ px(368), 3 ~ px(30))
-
-party_table <- gt(party_df) %>%
-  gt_plt_dot(column = Seats, category_column = Party,  max_value = 368,
-             palette = c("#ec323f", "black", "#63d64a", "#fff24e", "#4fabf7", "#e956ad", "grey")) %>%
-  gtExtras::gt_theme_nytimes() %>%
-  tab_header(title = "Results by Party in the Bundestag Election",
-             subtitle = "Seats and votes are based on provisional official results.") %>%
-  cols_width(Party ~ px(300), 3 ~ px(30)) %>%
-  tab_style(style = list(cell_text(color = "grey"),cell_borders(color = "white")),
-            locations = cells_body(3)) %>%
-  tab_source_note(
-    html(
-      paste0(
-        "With a total of 735 seats<br>",
-        "<span style='color:#bfbfbf;'>Data as of: Sept 26, 2021, 11:09PM CDT</span>"
-      )
-    )
-  ) %>%
-  tab_style(style = cell_borders("right", "lightgrey", "dashed"),
-            cells_body(Party)) %>%
-  tab_style(style = cell_borders("top", "white"), cells_body(rows = 1)) %>%
-  tab_options(table.border.bottom.color = "white")
-
-combo_table <- htmltools::div(
-  party_table,
-  htmltools::div(
-    "368 seats for majority",
-    style = paste0(
-      htmltools::css(
-        background= "white", font.size = px(11), width = px(60),
-        font.family = "arial", display = "flex", text.align = "center",
-        color = "#999", position = "fixed", top = "230px", left = "290px"
-      )
-    )
-  )
-)
-
-
-party_table
-# to save as an img
-gtExtras::gtsave_extra(combo_table, "combo-table.png", vwidth = 450, vheight = 430)
-
